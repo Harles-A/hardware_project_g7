@@ -22,7 +22,8 @@ class States(Encoder, Screen):
         self.draw(text)
     
     def measure(self):
-        detection = PulseDetect(500, 26)
+        desired_size = 250 * 5
+        detection = PulseDetect(desired_size, 26)
         while self.fifo.empty():
             pulse = detection.get_bpm()
             text = [f"{pulse} BPM", " ", "PRESS THE BUTTON TO STOP MEASUREMENT"]
@@ -35,7 +36,10 @@ class States(Encoder, Screen):
             detection.timer.deinit()
             while detection.has_data():
                 detection.values.append(detection.get())
-            detection.get_ppi()
+            try:
+                detection.get_ppi()
+            except IndexError:
+                pass
         if self.fifo.has_data():
             input = self.fifo.get()
             if input == 0:

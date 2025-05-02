@@ -9,7 +9,7 @@ class PulseDetect(Fifo):
         self.pulse = ADC(Pin(pulse_pin, Pin.IN))
         self.sample_rate = 250
         self.measure_time_s = 5
-        self.timer = Piotimer(mode=Piotimer.PERIODIC, freq=self.sample_rate, callback=self.pulse_handler)
+        self.timer = None #Piotimer(mode=Piotimer.PERIODIC, freq=self.sample_rate, callback=self.pulse_handler)
         self.values = []
         self.ppi = []
         self.count_limit = self.sample_rate * self.measure_time_s
@@ -17,8 +17,10 @@ class PulseDetect(Fifo):
         self.is_rising = True
         
     def pulse_handler(self, tid):
-        self.put(self.pulse.read_u16())
-        self.count += 1
+        nh = (self.head + 1) % self.size
+        if nh != self.tail:
+            self.put(self.pulse.read_u16())
+            self.count += 1
     
     def set_timer(self):
         self.timer = Piotimer(mode=Piotimer.PERIODIC, freq=self.sample_rate, callback=self.pulse_handler)
@@ -44,3 +46,4 @@ class PulseDetect(Fifo):
         self.count = 0
         self.values.clear()
         self.ppi.clear()
+
