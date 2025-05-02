@@ -1,6 +1,10 @@
 {
   "urls": [
+	["boot.py", "http://localhost:8000/boot.py"],
     ["test.py", "http://localhost:8000/test.py"],
+	["render.py", "http://localhost:8000/render.py"],
+	["encoder.py", "http://localhost:8000/encoder.py"],
+	["pulse.py", "http://localhost:8000/pulse.py"],
     ["lib/filefifo.py", "http://localhost:8000/pico-lib/filefifo.py"],	
     ["lib/fifo.py", "http://localhost:8000/pico-lib/fifo.py"],
     ["lib/piotimer.py", "http://localhost:8000/pico-lib/piotimer.py"],
