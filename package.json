@@ -1,6 +1,5 @@
 {
   "urls": [
-	["boot.py", "http://localhost:8000/boot.py"],
     ["test.py", "http://localhost:8000/test.py"],
 	["render.py", "http://localhost:8000/render.py"],
 	["encoder.py", "http://localhost:8000/encoder.py"],
