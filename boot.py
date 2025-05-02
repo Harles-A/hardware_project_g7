@@ -1,11 +1,8 @@
-from machine import Pin, I2C, ADC
 from render import Screen
 from encoder import Encoder
 from pulse import PulseDetect
 from piotimer import Piotimer
-from fifo import Fifo
 import micropython
-import utime
 
 micropython.alloc_emergency_exception_buf(300)
 
@@ -39,7 +36,6 @@ class States(Encoder, Screen):
             while detection.has_data():
                 detection.values.append(detection.get())
             detection.get_ppi()
-        utime.sleep(1)
         if self.fifo.has_data():
             input = self.fifo.get()
             if input == 0:
