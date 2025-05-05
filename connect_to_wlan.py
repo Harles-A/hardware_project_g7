@@ -9,6 +9,7 @@ class Networking(Screen):
         self.SSID = "KMD652_Group_7"
         self.PASSWORD = "RyhMa7paSS"
         self.BROKER_IP = "192.168.7.254"
+        self.attempt = 0
     
     def connect_wlan(self):
         wlan = network.WLAN(network.STA_IF)
@@ -17,7 +18,10 @@ class Networking(Screen):
         
         while wlan.isconnected() == False:
             self.draw(["Connecting..."])
+            self.attempt += 1
             sleep(1)
+            if self.attempt > 3:
+                break
         
         self.draw([f"Connection successful. Pico IP: {wlan.ifconfig()[0]}"])
         sleep(3)
