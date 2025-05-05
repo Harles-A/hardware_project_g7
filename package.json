@@ -2,6 +2,7 @@
   "urls": [
     ["test.py", "http://localhost:8000/test.py"],
 	["render.py", "http://localhost:8000/render.py"],
+	["connect_to_wlan.py", "http://localhost:8000/connect_to_wlan.py"],
 	["encoder.py", "http://localhost:8000/encoder.py"],
 	["pulse.py", "http://localhost:8000/pulse.py"],
     ["lib/filefifo.py", "http://localhost:8000/pico-lib/filefifo.py"],	
