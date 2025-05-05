@@ -24,7 +24,7 @@ class PulseDetect:
         self.timer = Piotimer(mode=Piotimer.PERIODIC, freq=self.sample_rate, callback=self.pulse_handler)
     
     def get_bpm(self):
-        bpm = len(self.ppi) * 6
+        bpm = len(self.ppi) * 12
         return bpm
 
     def get_ppi(self):
@@ -32,13 +32,10 @@ class PulseDetect:
             if len(self.values) != 0:
                 max_value = max(self.values)
                 avg_value = sum(self.values) // len(self.values)
-                diff_rate = max_value - (max_value - avg_value) // 2
-                for enum in enumerate(self.values):
-                    if self.values[enum[0] + 1] < enum[1] > self.values[enum[0] - 1] and diff_rate < enum[1]:
-                        self.ppi.append((enum[0] * 4) - sum(self.ppi))
-                        self.is_rising = False
-                    elif not self.is_rising and enum[1] < diff_rate:
-                        self.is_rising = True
+                diff_rate = (max_value - avg_value) // 2 + avg_value
+                for i in range(0, len(self.values), 55):
+                    if self.values[i - 55] < self.values[i] > self.values[i + 55]:
+                        self.ppi.append(i * 4)
             else:
                 raise RuntimeError('No PLETH data found.')
         except Exception as err:
