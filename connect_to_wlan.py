@@ -21,9 +21,3 @@ class Networking(Screen):
         
         self.draw([f"Connection successful. Pico IP: {wlan.ifconfig()[0]}"])
         sleep(3)
-
-
-# Main program
-if __name__ == '__main__':
-    test = Networking()
-    test.connect_wlan()
