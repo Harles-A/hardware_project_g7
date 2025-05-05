@@ -24,7 +24,7 @@ class PulseDetect:
         self.timer = Piotimer(mode=Piotimer.PERIODIC, freq=self.sample_rate, callback=self.pulse_handler)
     
     def get_bpm(self):
-        bpm = len(self.ppi) * 12
+        bpm = len(self.ppi) * 6
         return bpm
 
     def get_ppi(self):
@@ -32,7 +32,7 @@ class PulseDetect:
             if len(self.values) != 0:
                 max_value = max(self.values)
                 avg_value = sum(self.values) // len(self.values)
-                diff_rate = (max_value - avg_value) // 2 + avg_value
+                diff_rate = max_value - (max_value - avg_value) // 2
                 for enum in enumerate(self.values):
                     if self.values[enum[0] + 1] < enum[1] > self.values[enum[0] - 1] and diff_rate < enum[1]:
                         self.ppi.append((enum[0] * 4) - sum(self.ppi))
