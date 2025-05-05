@@ -3,10 +3,10 @@ from piotimer import Piotimer
 from fifo import Fifo
 
 
-class PulseDetect(Fifo):
+class PulseDetect:
     def __init__(self, size, pulse_pin):
-        super().__init__(size)
-        self.pulse = ADC(Pin(pulse_pin, Pin.IN))
+        self.pulse = ADC(pulse_pin)
+        self.p_fifo = Fifo(size)
         self.sample_rate = 250
         self.measure_time_s = 5
         self.timer = Piotimer(mode=Piotimer.PERIODIC, freq=self.sample_rate, callback=self.pulse_handler)
@@ -17,7 +17,7 @@ class PulseDetect(Fifo):
         self.is_rising = True
         
     def pulse_handler(self, tid):
-        self.put(self.pulse.read_u16())
+        self.p_fifo.put(self.pulse.read_u16())
         self.count += 1
     
     def set_timer(self):
@@ -28,17 +28,21 @@ class PulseDetect(Fifo):
         return bpm
 
     def get_ppi(self):
-        if len(self.values) != 0:
-            peak_zone = max(self.values) - (max(self.values) // 8)
-            drop_zone = max(self.values) - (max(self.values) // 4)
-            for enum in enumerate(self.values):
-                if enum[1] > peak_zone and self.values[enum[0] + 1] < enum[1] < self.values[enum[0] - 1] and self.is_rising:
-                    self.ppi.append((enum[0] * 4) - sum(self.ppi))
-                    self.is_rising = False
-                elif not self.is_rising and enum[1] <= drop_zone:
-                    self.is_rising = True
-        else:
-            raise RuntimeError('No PLETH data found.')
+        try:
+            if len(self.values) != 0:
+                max_value = max(self.values)
+                avg_value = sum(self.values) // len(self.values)
+                diff_rate = (max_value - avg_value) // 2 + avg_value
+                for enum in enumerate(self.values):
+                    if self.values[enum[0] + 1] < enum[1] > self.values[enum[0] - 1] and diff_rate < enum[1]:
+                        self.ppi.append((enum[0] * 4) - sum(self.ppi))
+                        self.is_rising = False
+                    elif not self.is_rising and enum[1] < diff_rate:
+                        self.is_rising = True
+            else:
+                raise RuntimeError('No PLETH data found.')
+        except Exception as err:
+            pass
     
     def clear_data(self):
         self.count = 0
