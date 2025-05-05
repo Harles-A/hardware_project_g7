@@ -24,16 +24,28 @@ class Screen:
         if len(output) != 0:
             self.lines.append(output)
     
-    def draw(self, list):
+    def draw(self, list, **kwargs):
         self.lines.clear()
         pos = 0
         self.oled.fill(0)
-        for i in range(len(list)):
-            if len(list[i]) >= self.max_letters:
-                self.generate_line(list[i])
-            else:
+        if kwargs:
+            for i in range(len(list)):
                 self.lines.append(list[i])
-        for j in self.lines:
-            self.oled.text(j, 0, (pos * self.text_size), 1)
-            pos += 1
+            for j in self.lines:
+                if kwargs['loc'] == pos:
+                    self.oled.fill_rect(0, (pos * self.text_size), self.oled_width, (pos * self.text_size + self.text_size), 1)
+                    self.oled.text(j, 0, (pos * self.text_size), 0)
+                    pos += 1
+                else:
+                    self.oled.text(j, 0, (pos * self.text_size), 1)
+                    pos += 1
+        else:
+            for i in range(len(list)):
+                if len(list[i]) >= self.max_letters:
+                    self.generate_line(list[i])
+                else:
+                    self.lines.append(list[i])
+            for j in self.lines:
+                self.oled.text(j, 0, (pos * self.text_size), 1)
+                pos += 1
         self.oled.show()
