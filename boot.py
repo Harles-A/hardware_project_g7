@@ -10,11 +10,12 @@ micropython.alloc_emergency_exception_buf(300)
 
 
 class States(Encoder, Screen, PulseDetect, Networking):
-    def __init__(self, encoder_pin, pulse_pin, size):
+    def __init__(self, rot_a, push_c, pulse_pin, size):
         Networking.__init__(self)
-        Encoder.__init__(self, encoder_pin)
+        Encoder.__init__(self, rot_a, push_c)
         PulseDetect.__init__(self, size, pulse_pin)
         Screen.__init__(self)
+        self.menu_pos = 0
         self.state = self.initialize
     
     def initialize(self):
@@ -22,12 +23,20 @@ class States(Encoder, Screen, PulseDetect, Networking):
         self.state = self.menu
     
     def menu(self):
-        text = ["START MEASUREMENT BY PRESSING THE BUTTON"]
+        text = ["BPM", "HRV"]
         if self.fifo.has_data():
             input = self.fifo.get()
             if input == 0:
-                self.state = self.measure
-        self.draw(text)
+                if self.menu_pos == 0:
+                    self.state = self.measure
+                elif self.menu_pos == 1:
+                    self.state = self.hrv
+            else:
+                if self.menu_pos == 0:
+                    self.menu_pos = 1
+                else:
+                    self.menu_pos = 0
+        self.draw(text, loc=self.menu_pos)
     
     def measure(self):
         pulse = self.get_bpm()
@@ -43,6 +52,16 @@ class States(Encoder, Screen, PulseDetect, Networking):
             self.values.append(self.p_fifo.get())
         self.get_ppi()
         if self.fifo.has_data():
+            self.timer.deinit()
+            self.clear_data()
+            input = self.fifo.get()
+            if input == 0:
+                self.state = self.menu
+    
+    def hrv(self):
+        text = ["COLLECTING DATA", "PLEASE WAIT"]
+        self.draw(text)
+        if self.fifo.has_data():
             input = self.fifo.get()
             if input == 0:
                 self.state = self.menu
@@ -52,6 +71,6 @@ class States(Encoder, Screen, PulseDetect, Networking):
         self.state()
 
 if __name__ == '__main__':
-    bpm = States(12, 26, 20000)
+    bpm = States(10, 12, 26, 20000)
     while True:
         bpm.run()
